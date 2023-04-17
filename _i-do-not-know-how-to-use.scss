@@ -1,0 +1,96 @@
+@use 'sass:math';
+
+@function rem($px) {
+  // @return calc($px / 10 / 2);
+  @return calc($px / 10);
+}
+
+// 使い方がわからなかった
+// @function sass_clamp($minFontSize, $minViewWidth, $maxViewWidth, $maxFontSize) {
+//   $minViewWidth: calc(#{$minViewWidth} / 16);
+//   $maxViewWidth: calc(#{$maxViewWidth} / 16);
+//   $slope: calc((#{$maxFontSize} - #{$minFontSize}) / (#{$maxViewWidth} - #{$minViewWidth}));
+//   $yaxis: calc(#{$minFontSize} + (#{$minViewWidth} * #{$slope} * -1));
+//   $preferredValue: clamp(#{$minFontSize}, calc((#{$yaxis} * 1rem) + (#{$slope} * 100) * 1vw), #{$maxFontSize});
+//   @return $preferredValue;
+// }
+
+// - [Linearly Scale font-size SCSS function](https://codepen.io/antonioio/pen/xxRPwaW)
+// 使い方がわからない
+// @function get-clamp($minFontSizePx, $maxFontSizePx, $minWidthPx, $maxWidthPx) {
+//     $pixelsPerRem: 10;
+//     $minWidth: $minWidthPx/$pixelsPerRem;
+//     $maxWidth: $maxWidthPx/$pixelsPerRem;
+    
+//     $minFontSize: $minFontSizePx/$pixelsPerRem;
+//     $maxFontSize: $maxFontSizePx/$pixelsPerRem;
+    
+//     $slope: ($maxFontSize - $minFontSize)/($maxWidth - $minWidth);
+//     $yAxisIntersection: - $minWidth * $slope + $minFontSize;
+    
+//     $fluid: calc(#{$yAxisIntersection}rem + #{$slope * 100}vw);
+    
+//     @return clamp( #{$minFontSize}rem, #{$fluid}, #{$maxFontSize}rem );
+// }
+
+// - [Linearly Scale font-size with CSS clamp() Based on the Viewport | CSS-Tricks - CSS-Tricks](https://css-tricks.com/linearly-scale-font-size-with-css-clamp-based-on-the-viewport/#li-comment-1794930)
+// 使い方がわからない
+// @function linear($minFontSize, $minWidth, $maxWidth, $maxFontSize) {
+//     $slope: (rem($maxFontSize) - rem($minFontSize)) / (rem($maxWidth) - rem($minWidth));
+//     $yAxisIntersection: rem($minWidth) * $slope * -1 + rem($minFontSize);
+//     $slopeVw: calc($slope * 100vw);
+//     $preferredValue: #{rem($yAxisIntersection)}rem '+' #{$slopeVw};
+//     @return clamp(#{rem($minFontSize)}rem, #{$preferredValue}, #{rem($maxFontSize)}rem);
+// }
+
+
+// 使い方がわからない
+// @function strip-unit($value) {
+//     @return $value / ($value * 0 + 1);
+// }
+// @function fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size) {
+//     $preferred: calc(#{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)}));
+//     @return clamp(#{$min-font-size}px, #{$preferred}, #{$max-font-size}px);
+// }
+
+// $base-font-size: 10;
+// @function strip-unit($num) {
+//     @return math.div($num, ($num * 0 + 1));
+// }
+// @function divide-root($px) {
+//     @return math.div(strip-unit($px), $base-font-size);
+// }
+// @function rem2($px) {
+//     @return divide-root($px) * 1rem;
+// }
+// - [Sass と clamp() で作る可変のフォントサイズ – FirstLayout](https://firstlayout.net/fluidly-font-size-created-with-sass-and-clamp/)
+// 使い方がわからない
+// @function fluid-size($min-size, $max-size, $min-breakpoint, $max-breakpoint) {
+//     $min-unit: rem2($min-size);
+//     $max-unit: rem2($max-size);
+//     $min-num: divide-root($min-size);
+//     $max-num: divide-root($max-size);
+//     $slope: math.div(($max-num - $min-num), ($max-breakpoint - $min-breakpoint));
+//     $calc-rem: ($min-breakpoint * -1 * $slope + $min-num) * 1rem;
+//     $calc-vw: ($slope * 100) * 1vw;
+//     @return clamp($min-unit, $calc-rem + $calc-vw, $max-unit);
+// }
+
+
+
+// - [benabraham’s gists](https://gist.github.com/benabraham)
+// 使い方がわからない
+// @function clampLength($minFontSize, $maxFontSize, $minWidth, $maxWidth){
+//   // widths in px
+//   // font sizes in rem
+//   $minFontSize: #{rem($minFontSize)}rem;
+//   $maxFontSize: #{rem($maxFontSize)}rem;
+//   $minWidth: #{$minWidth}px;
+//   $maxWidth: #{$maxWidth}px;
+//   $pixelsPerRem: 10px;
+//   $minWidth: $minWidth / $pixelsPerRem;
+//   $maxWidth: $maxWidth / $pixelsPerRem;
+//   $slope: (($maxFontSize - $minFontSize) / 1rem) / ($maxWidth - $minWidth);
+//   $yAxisIntersection: -$minWidth * $slope + $minFontSize;
+//   @return clamp(#{$minFontSize}, #{$yAxisIntersection} + #{$slope * 100}vw, #{$maxFontSize})
+// }

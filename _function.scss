@@ -1,0 +1,115 @@
+@use 'sass:math';
+
+@function rem($px) {
+    // @return calc($px / 10 / 2);
+    @return calc($px / 10);
+}
+
+$default-min-bp: 320px;
+$default-max-bp: 960px;
+@function round($number, $decimals: 0) {
+    $n: 1;
+    @if $decimals > 0 {
+        @for $i from 1 through $decimals {
+            $n: $n * 10;
+        }
+    }
+    @return math.div(math.round($number * $n), $n);
+}
+@function px-to-rem($px) {
+    // $rems: calc($px / 10 / 2) * 1rem;
+    $rems: calc($px / 10) * 1rem;
+    @return $rems;
+}
+// - [Easy Fluid Typography With clamp() Using Sass Functions — Smashing Magazine](https://www.smashingmagazine.com/2022/10/fluid-typography-clamp-sass-functions/)
+@function fluid($min-size, $max-size, $min-breakpoint: $default-min-bp, $max-breakpoint: $default-max-bp, $unit: vw) {
+    $slope: math.div($max-size - $min-size, $max-breakpoint - $min-breakpoint);
+    $slope-to-unit: round($slope * 100, 2);
+    $intercept-rem: round(px-to-rem($min-size - $slope * $min-breakpoint), 2);
+    $min-size-rem: round(px-to-rem($min-size), 2);
+    $max-size-rem: round(px-to-rem($max-size), 2);
+    @return clamp(#{$min-size-rem}, #{$slope-to-unit}#{$unit} + #{$intercept-rem}, #{$max-size-rem});
+}
+
+// - [Modern Fluid Typography with clamp() | chriskirknielsen](https://chriskirknielsen.com/blog/modern-fluid-typography-with-clamp/)
+@function modern-fluid($min-vw, $max-vw, $min-value, $max-value) {
+    $factor: 1 / ($max-vw - $min-vw) * ($max-value - $min-value);
+    $calc-value: unquote('#{ rem($min-value - ($min-vw * $factor)) }rem + #{ 100vw * $factor }');
+
+    @return clamp(#{rem($min-value)}rem, #{$calc-value}, #{rem($max-value)}rem);
+}
+
+// - [Fluid Typography With CSS Clamp() / Blogs / Perficient](https://blogs.perficient.com/2022/09/26/fluid-typography-with-css-clamp/)
+@function clampBuilder($minFontSize, $maxFontSize, $minWidth, $maxWidth)
+{
+    $minFontSize: rem($minFontSize);
+    $maxFontSize: rem($maxFontSize);
+    $slope: (($maxFontSize - $minFontSize) / ($maxWidth - $minWidth));
+    $yAxis: -$minWidth * $slope + $minFontSize;
+    @return unquote(
+      'clamp(' + $minFontSize + 'rem, (' + $yAxis + 'rem + ' + ($slope * 1000) + 'vw), ' + $maxFontSize + 'rem)'
+    );
+}
+
+// px -> remに変換
+@function pxToRem($size, $base-font-size: 10) {
+    @return math.div($size, $base-font-size) * 1rem;
+}
+//*=======================================================
+//* clamp関数
+//*=======================================================
+// ====================================================================
+// example -> メインビジュアルのfont-sizeをなめらかに変更
+// .p-hero__title {
+//  @include ff(最小font-size, 最大font-size,最小幅,最大幅);
+// }
+//====================================================================
+// - [【CSS】vw+remとclamp関数を使ってfont-sizeを可変する方法](https://yuito-blog.com/fluid-typo/)
+@function flexClamp($minY, $maxY, $minX: $sp-comp-width, $maxX: $pc-comp-width) {
+    //縦軸の最小値をrem換算
+    $minValY: pxToRem($minY);
+    //縦軸の最大値をrem換算
+    $maxValY: pxToRem($maxY);
+    // ===========================================================
+    // clampの中央値は一次関数 y = ax + bで求める
+    // a -> 傾き(変化の割合) = (垂直の増加量) / (水平方向の増加量);
+    // b -> 切片(y軸との交点) = 最小のサイズ - 傾き * 最小の横幅;
+    // y = a * 100vw + b
+    // 参考：https://sushirice.pro/css-store/297/
+    // 正直まだよく分かってない
+    // ===========================================================
+    //垂直方向の増加量
+    $verticalAmount: $maxY - $minY;
+    //水平方向の増加量
+    $horizontalAmount: $maxX - $minX;
+    //傾き(小数点以下を3桁まで)、math.round()は小数点以下を四捨五入する関数
+    $tilt: math.div(math.round(math.div($verticalAmount, $horizontalAmount) * 1000), 1000);
+    //切片
+    $intercept: pxToRem($minY - $tilt * $minX);
+    //結果
+    @return clamp(#{$minValY}, #{$tilt * 100vw} + #{$intercept}, #{$maxValY});
+}
+
+
+// - [clamp()にてfont-sizeをレスポンシブ対応にする際の計算方法とScss関数 - Qiita](https://qiita.com/soundweaver/items/9b5a3a7c0b0e198f4570)
+@function responsiveFontSizeClamp($minFontSize, $maxFontSize, $minViewport, $maxViewport) {
+    //最大font-sizeから最小font-sizeを減算しフォントサイズの変化する幅を求める
+    $fontSizeRate: $maxFontSize - $minFontSize;
+    //最大viewportから最小viewportを減算しウィンドウの変化する幅を求めておく
+    $viewportRate: $maxViewport - $minViewport;
+
+    //フォントが変化する量をvw単位にする計算(小数点２桁で丸める)
+    $changingSize: math.div(math.round(math.div($fontSizeRate, $viewportRate) * 10000 ),100);
+
+    //フォントが変化しない部分をrem単位にする計算
+    $fixedSize: math.div(math.round(($minFontSize - math.div($fontSizeRate, $viewportRate) * $minViewport) * 62.5), 1000);
+
+    //最小フォントサイズをrem単位にする計算（小数点3桁で丸める）
+    $minRemFontSize: math.div(math.round($minFontSize * 62.5 ),1000);
+
+    //最大フォントサイズをrem単位にする計算（小数点３桁で丸める）
+    $maxRemFontSize: math.div(math.round($maxFontSize * 62.5),1000);
+
+    //出力
+    @return clamp(#{$minRemFontSize}rem, #{$fixedSize}rem + #{$changingSize}vw, #{$maxRemFontSize}rem);
+}

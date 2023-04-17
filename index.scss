@@ -1,0 +1,43 @@
+@use 'function' as *;
+
+html {
+  font-size: 10px;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+.yoo-yoo {
+  display: flex;
+  align-items: start;
+  gap: 0 1rem;
+}
+.yoo {
+  padding: 2rem;
+  border: 2px solid #000;
+  font-size: 2rem;
+  text-align: center;
+  &__txt {
+    margin: 0.5rem;
+    white-space: nowrap;
+  }
+  &__func {
+    white-space: nowrap;
+  }
+}
+.foo {
+  padding-bottom: clampBuilder(30, 60, 350, 1900);
+}
+.bar {
+  padding-bottom: fluid(30, 60, 350, 1900);
+}
+.baz {
+  padding-bottom: modern-fluid(350, 1900, 30, 60);
+}
+.qux {
+  padding-bottom: flexClamp(30, 60, 350, 1900);
+}
+.quux {
+  padding-bottom: responsiveFontSizeClamp(30, 60, 350, 1900);
+}
+
